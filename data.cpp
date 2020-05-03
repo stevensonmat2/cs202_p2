@@ -70,20 +70,22 @@ bool Node::insert(const Activity &to_copy)
 	//if array exists
 	if (activities)
 	{
+		//check last indes to see if array is full
 		if (activities[MAX_LEN-1])
 		{
 			return false;
 		}
 		
+		//call recursive insert function
 		return insert(to_copy, i);
 	}
 
 	else//if array does not exist
 	{
+		//create new array; set each index to null
 		activities = new Activity*[MAX_LEN]();
-
-		//set_null(activities);
 		
+		//call recusrive insert function
 		return insert(to_copy, i);
 	}
 }
