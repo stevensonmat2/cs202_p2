@@ -25,6 +25,8 @@ class Client {
 		//allows user to display info of an Activity
 		void display();
 
+		void edit_name();
+
 		//allows user to display all Activity objects
 		//with the highest priority
 		void display_top_p();

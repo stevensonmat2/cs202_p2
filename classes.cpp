@@ -15,6 +15,8 @@ Activity::Activity()
 //copy constrcutor; deep copies values from argument for new object
 Activity::Activity(const Activity &to_copy)
 {
+	//create new array sized to argument's equivalent member;
+	//copy argument's data into new array; repeat for all members
 	name = new char[strlen(to_copy.name)+1];
 	strcpy(name, to_copy.name);
 	
@@ -43,6 +45,8 @@ Activity::~Activity()
 
 
 
+//compares argument object's name to calling object's; return 0 if match,
+//>0 if name value greater than arguments, 0 < if less
 int Activity::cmp_obj(const Activity &compare)
 {
 	return strcmp(name, compare.name);
@@ -50,14 +54,16 @@ int Activity::cmp_obj(const Activity &compare)
 
 
 
-//compares argument's priority to object's, return true if match
+//compares argument's priority to object's, return 0 if match, > 0 if 
+//priority is less than arguments, 0 < otherwise
 int Activity::cmp_lvl(const Activity &compare)
 {
 	return compare.priority - priority;
 }
 
 
-//compars argument name to object value; return true is match
+//compars argument name to object value; return 0 if match, > 0 if name value
+//greater than argument, 0 < if less
 int Activity::cmp_name(char *_name)
 {
 	return strcmp(name, _name);
@@ -65,23 +71,34 @@ int Activity::cmp_name(char *_name)
 
 
 
+//default constructor
 Dining::Dining()
 {
 }
 
 
 
+//copy constructor; calls parent class constructor with argument object
 Dining::Dining(const Activity &to_copy): Activity(to_copy)
 {
 }
 
+
+
+//default destructor
 Dining::~Dining()
 {
 }
 
+
+
 //takes a character array and copies data into new array set to member pointer
 void Dining::set_name(char *_name)
 {
+	//if name array exists, delete
+	if (name)
+		delete [] name;
+
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
@@ -128,6 +145,7 @@ void Dining::set_solo()
 //outputs member data
 void Dining::display()
 {
+	//date and duration formatted for readability
 	cout << name << endl
 	     << "priority: " << priority << endl
 	     << "date: " << date[0] << date[1] 
@@ -147,33 +165,33 @@ void Dining::display()
 
 
 
-
-/*
-
-//compars argument name to object value; return true is match
-int Dining::cmp_obj(const Activity &compare)
-{
-	return strcmp(name, compare.name);
-}*/
-
-
-
+//default constructor
 Nature::Nature()
 {
 }
 
 
+
+//copy constructor; calls parent class constructor with argument object
 Nature::Nature(const Activity &to_copy): Activity(to_copy)
 {
 }
 
+
+//default destructor
 Nature::~Nature()
 {
 }
 
+
+
 //takes a character array and copies data into new array set to member pointer
 void Nature::set_name(char *_name)
 {
+	//if name array exists, delete
+	if (name)
+		delete [] name;
+
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
@@ -240,36 +258,37 @@ void Nature::display()
 
 
 
-/*
-//compars argument name to object value; return true is match
-int Nature::cmp_obj(const Activity &compare)
-{
-	return strcmp(name, compare.name);
-}*/
-
-
+//default constructor
 Entertainment::Entertainment()
 {
 }
 
 
 
+//copy constructor; calls parent class constructor with argument object
 Entertainment::Entertainment(const Activity &to_copy): Activity(to_copy)
 {
 }
 
+
+
+//default destructor
 Entertainment::~Entertainment()
 {
 }
 
 
+
 //takes a character array and copies data into new array set to member pointer
 void Entertainment::set_name(char *_name)
 {
+	//if name array exists, delete
+	if (name)
+		delete [] name;
+
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
-
 
 
 
@@ -329,18 +348,4 @@ void Entertainment::display()
 	
 	cout << endl;
 }
-
-
-
-/*
-//compars argument name to object value; return true is match
-int Entertainment::cmp_obj(const Activity &compare)
-{
-	return strcmp(name, compare.name);
-}*/
-
-
-
-
-
 

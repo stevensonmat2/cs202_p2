@@ -63,6 +63,32 @@ void Node::set_prev(Node *&node)
 
 
 
+bool Node::insert(const Activity &to_copy)
+{
+	int i = 0;//create index tracker
+	
+	//if array exists
+	if (activities)
+	{
+		if (activities[MAX_LEN-1])
+		{
+			return false;
+		}
+		
+		return insert(to_copy, i);
+	}
+
+	else//if array does not exist
+	{
+		activities = new Activity*[MAX_LEN]();
+
+		//set_null(activities);
+		
+		return insert(to_copy, i);
+	}
+}
+
+/*
 //wrapper; checks if Activity array exists; if not, creates one and adds
 //new Activity. otherwise, checks first Activity's priority lvl; if matches
 //new object's, call recursive insert function to insert new object. if not,
@@ -75,46 +101,18 @@ bool Node::insert(const Activity &to_copy)
 	//if array exists
 	if (activities)
 	{
-		//if array is full, exit
-		if (activities[MAX_LEN-1])
-		{
-			return false;
-		}
 
-		//check first ptr for array's priority lvl
-		//if a match, proceed
-		else if (activities[i]->cmp_lvl(to_copy) == 0)
+		//check first ptr for array's priority lvl if a match and
+		//array not full, call recursive insert function
+		if (activities[i]->cmp_lvl(to_copy) == 0 && 
+			!activities[MAX_LEN-1])
 		{
 			//call recursive function to insert new object
 			return insert(to_copy, i);
 		}
-	
-		
-		//if new object priority lower than current array,
-		else if (activities[i]->cmp_lvl(to_copy) > 0)
-		{
-			//check for next node
-			if (get_next())
-			{
-				//if found, call node's insert function
-				return get_next()->insert(to_copy);
-			}
-			
-			//if next not found, create new node, insert into DLL,
-			//and call its insert function
-			else
-			{
-				Node *temp = new Node;
-				set_next(temp);
-				Node *current = this;
-				temp->set_prev(current);
-
-				return get_next()->insert(to_copy);
-			}
-		}
 		
 		//if new object higher priority than current array,
-		else
+		else if (activities[i]->cmp_lvl(to_copy) < 0)
 		{
 			//if curret node is top priority
 			if (!get_prev())
@@ -164,6 +162,29 @@ bool Node::insert(const Activity &to_copy)
 				return node->insert(to_copy);
 			}
 		}
+		
+		//if new object priority lower than current array,
+		else	
+		{
+			//check for next node
+			if (get_next())
+			{
+				//if found, call node's insert function
+				return get_next()->insert(to_copy);
+			}
+			
+			//if next not found, create new node, insert into DLL,
+			//and call its insert function
+			else
+			{
+				Node *temp = new Node;
+				set_next(temp);
+				Node *current = this;
+				temp->set_prev(current);
+
+				return get_next()->insert(to_copy);
+			}
+		}
 	}
 
 	else//if array does not exist
@@ -175,7 +196,7 @@ bool Node::insert(const Activity &to_copy)
 		return insert(to_copy, i);
 	}
 }
-
+*/
 
 
 //recursive insert function; checks all indicies of member array for
@@ -189,6 +210,8 @@ bool Node::insert(const Activity &to_copy, int i)
 	if (!activities[i])
 	{
 		//try casting to three subclasses until argument object matches
+		//
+		//try Dining object
 		const Dining *pt = dynamic_cast<const Dining*>(& to_copy);
 		
 		if (pt)//check if cast worked
@@ -207,6 +230,7 @@ bool Node::insert(const Activity &to_copy, int i)
 
 		else//otherwise, try other classes
 		{
+			//try Nature object
 			const Nature *pt = dynamic_cast<const Nature*>(& to_copy);
 
 			if (pt)
@@ -223,6 +247,7 @@ bool Node::insert(const Activity &to_copy, int i)
 
 			else
 			{
+				//try Entertainment object
 				const Entertainment *pt = 
 				dynamic_cast<const Entertainment*>(& to_copy);
 
@@ -266,7 +291,7 @@ bool Node::insert(const Activity &to_copy, int i)
 //recursive helper to move objects in array to right (ie down)
 void Node::shuffle_right(int i)
 {
-	//stopping condition; exit once end of array reached	
+	//stopping condition; exit once last index reached	
 	if (i == MAX_LEN-1) return;
 
 	if (activities[i+1])//if next index not empty
@@ -274,16 +299,7 @@ void Node::shuffle_right(int i)
 		//recall function to check next index
 		shuffle_right(i+1);
 	}
-	/*
-	//once recursion ends, shift ptrs to right 1
-	Activity *temp = NULL;
 	
-	copy_type(*activities[i], temp);
-
-	activities[i+1] = temp;
-
-	activities[i+1] = *&activities[i];
-*/	
 	//set next index's ptr to the object of current index's ptr
 	activities[i+1] = &(*activities[i]);
 }
@@ -296,14 +312,6 @@ void Node::shuffle_left(int i)
 	//stopping condition; exit once end of array reached	
 	if (i == MAX_LEN-1) return;
 
-/*
-	Activity *temp = NULL;
-
-	copy_type(*activities[i+1], temp);
-
-	activities[i] = temp;
-
-*/
 	//set current index to next index object
 	activities[i] = activities[i+1];
 
@@ -314,47 +322,6 @@ void Node::shuffle_left(int i)
 	shuffle_left(++i);
 }
 
-/*
-void Node::copy_type(const Activity &to_copy, Activity *&copy)
-{
-	
-	const Dining *pt = dynamic_cast<const Dining*>(& to_copy);
-	
-	if (pt)//check if cast worked
-	{
-		//if so, copy argument data into new object;
-		//save to array
-		copy = new Dining(to_copy);
-
-		return;
-	}
-
-	else//otherwise, try other classes
-	{
-		const Nature *pt = dynamic_cast<const Nature*>(& to_copy);
-
-		if (pt)
-		{
-			copy = new Nature(to_copy);
-
-			return;
-		}
-
-		else
-		{
-			const Entertainment *pt = 
-			dynamic_cast<const Entertainment*>(& to_copy);
-
-			if (pt)
-			{
-				copy = new Entertainment(to_copy);
-
-				return;
-			}
-		}
-	}
-}
-*/
 
 
 //wrapper; calls recursive function to find Activity matching argument
@@ -397,9 +364,34 @@ bool Node::display(char *name, int i)
 
 //finds Activity matching argument name; returns object
 //via argument pointer
-void Node::retrieve(char *name, Activity *retrieved)
+bool Node::retrieve(char *name, Activity *&retrieved)
 {
+	int i = 0;
+
+	if (activities)
+	{
+		return retrieve(name, retrieved, i);
+	}
+	
+	return false;
 }
+
+
+
+bool Node::retrieve(char *name, Activity *&retrieved, int i)
+{
+	if (i == MAX_LEN) return false;
+
+	if (activities[i]->cmp_name(name) == 0)
+	{
+		retrieved = activities[i];
+
+		return true;
+	}
+
+	return retrieve(name, retrieved, ++i);
+}
+
 
 
 
@@ -410,12 +402,10 @@ bool Node::remove(char *name)
 	int i = 0;//set index tracker
 	
 	//if array exists, call recursive function 
-	if (activities)
-		return remove(name, i);
+	if (activities) return remove(name, i);
 	
 	//else exit with fail
-	else
-		return false;
+	else return false;
 }
 
 
@@ -436,17 +426,11 @@ bool Node::remove(char *name, int i)
 			return true;
 		}
 		
-		else
-			return remove(name, ++i);
+		else return remove(name, ++i);
 	}
 
 	return false;
-
 }
-
-
-//deletes all objects matching argument priorty level
-//void remove_all_p(int p_lvl);
 
 
 
@@ -470,8 +454,20 @@ bool Node::display_all()
 //calls display function for all object of argument priority
 void Node::display_all(int i)
 {
-	//if end of array or empty index found, exit
-	if (i == MAX_LEN || !activities[i]) return;
+	//if end of array or empty index found, check next node's array
+	//then exit
+	if (i == MAX_LEN || !activities[i])
+	{
+		if (!get_next()) return;
+
+		if (get_next()->cmp_lvl(*activities[0]) == 0)
+		{
+			get_next()->display_all();
+			
+		}
+
+		return;
+	}
 	
 	//call objects display function
 	activities[i]->display();
@@ -481,31 +477,20 @@ void Node::display_all(int i)
 }
 
 
-/*
-//wrapper; calls function to set all pointers in argument array to null
-void Node::set_null(Activity **array)
+
+int Node::cmp_lvl(const Activity &to_check)
 {
-	int i = 0;//set index tracker
-	
-	//call recursive version
-	set_null(array, i);
+	if (activities)
+	{
+		return activities[0]->cmp_lvl(to_check);
+	}
+
+	return -10;
 }
 
+		
 
 
-//recursive function to set all ptrsin array to null; takes an array and
-//an integer to track indicies as arguments
-void Node::set_null(Activity **array, int i)
-{
-	//if end of index reached, exit
-	if (i == MAX_LEN) return;
-
-	array[i] = NULL;//set current index to null
-
-	set_null(array, ++i);//traverse to next index
-}
-
-*/
 
 //recursive function to delete all Activity objects in member array
 void Node::delete_array(int i)
@@ -542,12 +527,11 @@ Data::Data()
 //destructor
 Data::~Data()
 {
-	if (activities)
-		delete activities;
+	if (activities) delete activities;
 }
 
 
-
+/*
 //copies argument object and inserts new object
 //into data structure
 bool Data::insert(const Activity &to_copy)
@@ -558,22 +542,109 @@ bool Data::insert(const Activity &to_copy)
 	}
 
 	//insert(to_copy, activities);
-
 	return activities->insert(to_copy);
 }
+*/
 
-
-/*
-void Data::insert(const Activity &to_copy, Node *&node)
+//copies argument object and inserts new object
+//into data structure
+bool Data::insert(const Activity &to_copy)
 {
-	//try to insert into first array
-	if (!activities->insert(to_copy))
+	if (!activities)
+	{
+		activities = new Node;
+		return activities->insert(to_copy);
+	}
 
-		//if fail, try each other array
-		insert(to_copy, activities->get_next());
+	return insert(activities, to_copy);
 }
 
-*/
+
+
+bool Data::insert(Node *node, const Activity &to_copy)
+{
+	int p_lvl = node->cmp_lvl(to_copy);
+
+	if (p_lvl == 0)
+	{
+		if (!node->insert(to_copy))
+		{
+			//create new node
+			Node *temp = new Node;
+
+			//set new node's next to current node's next
+			temp->set_next(node->get_next());
+
+			//set current node's next to temp
+			node->set_next(temp);
+
+			//set temp's prev to current node
+			temp->set_prev(node);
+
+			//set temp's next's prev to temp
+			if (temp->get_next())
+			{
+				temp->get_next()->set_prev(temp);
+			}
+			
+
+			return temp->insert(to_copy);
+		}
+
+		return true;
+	}
+	
+	//if new object lower priority than current node
+	else if (p_lvl > 0)
+	{
+		//check for next node
+		if (node->get_next())
+		{
+			//if found, call node's insert function
+			return insert(node->get_next(), to_copy);
+		}
+		
+		//if next not found, create new node, insert into DLL,
+		//and call its insert function
+		else
+		{
+			Node *temp = new Node;
+			node->set_next(temp);
+			temp->set_prev(node);
+
+			return temp->insert(to_copy);
+		}
+	}
+
+	else
+	{
+		//if curret node is top priority
+		if (!node->get_prev())
+		{
+			Node *temp = new Node;
+
+			temp->set_next(node);
+
+			node->set_prev(temp);
+
+			activities = temp;
+
+			return activities->insert(to_copy);
+		}
+		
+		else
+		{
+			//insert new node before current node
+			Node *temp = new Node;
+			temp->set_next(node);
+			temp->set_prev(node->get_prev());
+			node->get_prev()->set_next(temp);
+			node->set_prev(temp);
+
+			return temp->insert(to_copy);
+		}
+	}
+}
 
 
 
@@ -583,8 +654,7 @@ void Data::insert(const Activity &to_copy, Node *&node)
 bool Data::display(char *name)
 {
 	//if list of Activity objects exists, call recursive display function
-	if (activities)
-		return display(name, activities);
+	if (activities) return display(name, activities);
 
 	return false;
 }
@@ -599,8 +669,7 @@ bool Data::display(char *name, Node *node)
 	if (!node) return false;
 	
 	//if match is found, return true
-	if (node->display(name))
-		return true;
+	if (node->display(name)) return true;
 	
 	//else, traverse to next node
 	return display(name, node->get_next());
@@ -608,13 +677,35 @@ bool Data::display(char *name, Node *node)
 
 
 
-
 //finds Activity matching argument name; returns object
 //via argument pointer
-void Data::retrieve(char *name, Activity *retrieved)
+bool Data::retrieve(char *name, Activity *&retrieved)
 {
 	if (activities)
-		activities->retrieve(name, retrieved);
+	{
+		return retrieve(name, retrieved, activities);
+	}
+
+	return false;
+}
+
+
+
+//recursively checks each node in DLL for Activity object that matches
+//argument name; returns true if found, false otherwise
+bool Data::retrieve(char *name, Activity *&retrieved, Node *node)
+{
+	//stopping condition
+	if (!node) return false;
+	
+	//check current node
+	if (activities->retrieve(name, retrieved))
+	{
+		return true;//return true if retrieval successful
+	}
+
+	//if next node found, recall function with next node
+	return retrieve(name, retrieved, node->get_next());
 }
 
 
@@ -625,9 +716,8 @@ bool Data::remove(char *name)
 	//if no Activity objects added yet, exit with fail
 	if (!activities) return false;
 	
-	else
-		//call recursive function to remove object
-		return remove(activities, name);
+	//call recursive function to remove object
+	return remove(activities, name);
 }
 
 
@@ -640,16 +730,8 @@ bool Data::remove(Node *&node, char *name)
 
 	if (node->remove(name)) return true;
 
-	else	
-		return remove(node->get_next(), name);
+	return remove(node->get_next(), name);
 }
-
-
-
-
-
-//deletes all objects matching argument priorty level
-//void Data::remove_all_p(int p_lvl)
 
 
 
@@ -657,31 +739,11 @@ bool Data::remove(Node *&node, char *name)
 bool Data::display_all_p()
 {
 	if (activities)
-		return activities->display_all();
-
-	else
-		return false;
-}
-
-/*
-bool Data::display_all_p(Activity **array, int lvl)
-{
-	if (!activities->display_all_p(lvl))
 	{
-		if (activities->get_next())
-		{
-			return display_all(activities->get_next(), lbl);
-		}
-
-		else
-		{
-			return false;
-		}
+		return activities->display_all();
 	}
 
-	return true;
+	return false;
 }
-*/
-
 
 

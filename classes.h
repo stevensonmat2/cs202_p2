@@ -105,10 +105,6 @@ class Dining: public Activity {
 
 		//outputs all member data
 		void display();
-		
-		
-		//compares argument to object value; returns true if match
-		//int cmp_obj(const Activity &compare);
 };
 
 
@@ -143,9 +139,6 @@ class Nature: public Activity {
 		
 		//compares argument to object value; returns true if match
 		int cmp_name(char *name);
-		
-		//compares argument to object value; returns true if match
-		//int cmp_obj(const Activity &compare);
 };
 
 
@@ -181,7 +174,4 @@ class Entertainment: public Activity {
 		
 		//compares argument to object value; returns true if match
 		int cmp_name(char *name);
-		
-		//compares argument to object value; returns true if match
-		//int cmp_obj(const Activity &compare);
 };

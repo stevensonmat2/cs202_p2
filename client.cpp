@@ -2,6 +2,7 @@
 
 
 
+//constructor; instantiates new Data object at member
 Client::Client()
 {
 	activities = new Data;
@@ -9,6 +10,7 @@ Client::Client()
 
 
 
+//destructor; delete dynamic memory
 Client::~Client()
 {
 	if (activities) delete activities;
@@ -16,11 +18,12 @@ Client::~Client()
 
 
 
+//main menu function. provides user interface for Client functions
 void Client::menu()
 {
-	int input = 0;
+	int input = 0;//stores user command input
 
-	do
+	do//display command options until user chooses to exit
 	{
 		cout << "choose command: " << endl
 		     << endl
@@ -28,6 +31,8 @@ void Client::menu()
 		     << "(2) display Activity" << endl
 		     << "(3) remove Activity" << endl
 		     << "(4) display all top priority" << endl
+		     << "(5) edit Activity" << endl
+		     << "(0) exit program" << endl
 		     << endl
 		     << "enter command: ";
 
@@ -36,7 +41,7 @@ void Client::menu()
 
 		     cout << endl;
 
-		     switch (input)
+		     switch (input)//call function corresponding to user input
 		     {
 		     		case 1: //call insert function
 					add();
@@ -53,24 +58,30 @@ void Client::menu()
 				case 4: //call display function
 					display_top_p();
 					break;
-
-				case 0:
+				
+				case 5: //call edit name function
+					edit_name();
 					break;
 
+				case 0: //exit the program
+					break;
 		     }
 
 	} while (input != 0);//loop until user enters '0'
-			 
 }
 
 
 
+//allows user to create new Activity. displays sub menu of Activity types and
+//prompts user to choose type; based on choice, create new object of Activity
+//subclass, call build function with new object as argument, and pass object
+//to Data's insert function
 void Client::add()
 {
-	Activity *temp = NULL;
-	int input = 0;
+	Activity *temp = NULL;//ptr to hold new Activity object
+	int input = 0;//stores user command input
 
-	do
+	do//display command options until user chooses to exit
 	{
 		cout << "choose activity type:" << endl
 		     << endl
@@ -87,7 +98,7 @@ void Client::add()
 
 		     switch (input)
 		     {
-		     		case 1: //call insert function
+		     		case 1: //create new object, call insert function
 					temp = new Dining;
 					build(temp);
 					if (!activities->insert(*temp))
@@ -97,7 +108,7 @@ void Client::add()
 					input = 0;
 					break;
 
-				case 2: //call display function
+		     		case 2: //create new object, call insert function
 					temp = new Nature;
 					build(temp);
 					if (!activities->insert(*temp))
@@ -107,7 +118,7 @@ void Client::add()
 					input = 0;
 					break;
 				
-				case 3: //call display function
+		     		case 3: //create new object, call insert function
 					temp = new Entertainment;
 					build(temp);
 					if (!activities->insert(*temp))
@@ -160,6 +171,49 @@ void Client::display()
 	if (!activities->display(name))
 		cout << "activity not found" << endl
 		     << endl;
+}
+
+
+
+//prompts user for name of Activity and call Data object's retrieve function;
+//passes in a name array and an Activity ptr as arguments; if matching object
+//is found, object is return via argument Activity ptr
+void Client::edit_name()
+{
+	char name[50];//stores user input for Activity name
+	Activity *temp = NULL;//temp ptr to Activity; used to retrieve
+	                      //object to be edited
+	
+	//prompt user for Activity name
+	cout << "enter name: ";
+	cin.get(name, '\n');
+	cin.ignore(100, '\n');
+
+	if (!activities->retrieve(name, temp))
+	{
+		cout << "activity not found" << endl
+		     << endl;
+	}
+
+	else
+	{
+		temp->display();
+
+		char name[50];//stores user input for dynamic member data
+		
+		//prompt user for Activity name
+		cout << "enter name: ";
+		cin.get(name, '\n');
+		cin.ignore(100, '\n');
+		
+		//call Activity's set name function with user input as argument
+		temp->set_name(name);
+
+		cout << "Activity updated!" << endl
+		     << endl;
+
+		temp->display();
+	}
 }
 
 
