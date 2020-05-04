@@ -41,10 +41,10 @@ Node::~Node()
 	//if Activity array exists
 	if (activities) 
 	{
-		//int i = 0;//index tracker
+		int i = 0;//index tracker
 		
 		//recursively delete objects in array
-		//delete_array(i);
+		delete_array(i);
 
 		//delete array
 		delete [] activities;
@@ -608,7 +608,7 @@ bool Data::insert(const Activity &to_copy)
 //then creates a new node either ahead or after current node and inserts new
 //object there.
 //otherwise, traverses DLL for appropriate place in insert new object
-bool Data::insert(Node *&node, const Activity &to_copy)
+bool Data::insert(Node *node, const Activity &to_copy)
 {
 	//compare priority lvl of current object to current array
 	int p_lvl = node->cmp_lvl(to_copy);
@@ -744,8 +744,6 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 	}
 }
 
-
-
 //wrapper; calls recursive function to display object matching argument name
 //if no Activity objects have been made, returns false; returns result of
 //recusrive function otherwise
@@ -816,15 +814,44 @@ bool Data::remove(char *name)
 	//if no Activity objects added yet, exit with fail
 	if (!activities) return false;
 	
+	//try removal from head of DLL
+	if (activities->remove(name))
+	{
+		//if removal succeeds, check if array is empty
+		if (activities->is_empty())
+		{
+			//save head node
+			Node *temp = activities;
+
+			//set head to next
+			activities = activities->get_next();
+			
+			//if head not null
+			if (activities)
+			{
+				//set prev to node to be deleted
+				activities->set_prev(temp);
+			}
+			
+			//delete old head node
+			delete temp;
+
+			//set current head's prev to null
+			temp = NULL;
+		}
+
+		return true;
+	}
+
 	//call recursive function to remove object
-	return remove(activities, name);
+	return remove(activities->get_next(), name);
 }
 
 
 
 //recursively checks each node in DLL to see if node's array holds object
 //matching argument name; if found, call node remove function
-bool Data::remove(Node *&node, char *name)
+bool Data::remove(Node *node, char *name)
 {
 	//if DLL empty of or end of list reached with no match
 	if (!node) return false;
@@ -835,74 +862,26 @@ bool Data::remove(Node *&node, char *name)
 		//check if node array is empty
 		if (node->is_empty())
 		{
-			//if so, check if node head of DLL
-			if (node == activities)
+			//connect node's prev to node's next
+			node->get_prev()->set_next(node->get_next());
+			
+			//node node's next not null
+			if (node->get_next())
 			{
-				//if so, check for next node
-				if (node->get_next())
-				{
-					//if found, save a null ptr
-					Node * temp = node->get_prev();
-					
-					//set activities ptr to next node
-					activities = &(*node->get_next());
-					
-					//delete old head of list
-					delete activities->get_prev();
-					
-					//set current head's prev to null
-					activities->set_prev(temp);
-				}
-
-				else//if no next
-				{
-					//delete curret node
-					delete activities;
-					
-					//set activities ptr to null
-					activities = NULL;
-				}
+				//set node's next's prev to node's prev
+				node->get_next()->set_prev(node->get_prev());
 			}
 			
-			//if current node not head of DLL, delete current node
-			//and reconnect list
-			else
-			{
-				//save current node to temp
-				Node *temp = node;
-				
-				//save current node's prev
-				Node *prev = &(*temp->get_prev());
-				
-				//save current node's next
-				Node *next = &(*temp->get_next());
-				
-				//set prev's next to next ptr
-				prev->set_next(next);
-				
-				//if next ptr not null
-				//if (temp->get_next())
-				if (next)
-				{
-					//set next's prev to prev
-					next->set_prev(prev);
-				}
-				
-				delete node;
-
-				node = NULL;
-			}
+			//delete curret node
+			delete node;
 		}
 		
 		//if node not empty, exit with sucess
 		return true;
 	}
 	
-	//get address of next object
-	Node *temp = node->get_next();
-	
 	//traverse to next node to look for match
-	return remove(temp, name);
+	return remove(node->get_next(), name);
 }
 
 

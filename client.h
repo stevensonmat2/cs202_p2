@@ -9,7 +9,7 @@ this file contains the class definition for a client program class. this class
 utilizes the data structure developed in data.h to create a program for working
 with a collection of scheduled activities
 
-the Client class offers functionality to add, display, remove, and edit new
+the Client class offers functionality to add, display, remove, and edit 
 Activity objects
 
 */
@@ -40,8 +40,9 @@ class Client {
 
 		//allows user to display info of an Activity
 		void display();
-
-		void edit_name();
+		
+		//allows user to edit date of Activity
+		void edit_date();
 
 		//allows user to display all Activity objects
 		//with the highest priority

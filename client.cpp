@@ -7,6 +7,10 @@ client.cpp
 
 this file contains all function definitions for the Client class
 
+a Client object works directly with its Data object for working with
+new Activity objects. any Acitivty objects created by the Client are
+for reference only and are not stored directly into the data structure.
+
 */
 
 #include "client.h"
@@ -42,7 +46,7 @@ void Client::menu()
 		     << "(2) display Activity" << endl
 		     << "(3) remove Activity" << endl
 		     << "(4) display all top priority" << endl
-		     << "(5) edit Activity" << endl
+		     << "(5) edit Activity date" << endl
 		     << "(0) exit program" << endl
 		     << endl
 		     << "enter command: ";
@@ -71,7 +75,7 @@ void Client::menu()
 					break;
 				
 				case 5: //call edit name function
-					edit_name();
+					edit_date();
 					break;
 
 				case 0: //exit the program
@@ -193,8 +197,8 @@ void Client::display()
 
 //prompts user for name of Activity and call Data object's retrieve function;
 //passes in a name array and an Activity ptr as arguments; if matching object
-//is found, object is return via argument Activity ptr
-void Client::edit_name()
+//is found, object is return via argument Activity ptr and user may change date
+void Client::edit_date()
 {
 	char name[50];//stores user input for Activity name
 	Activity *temp = NULL;//temp ptr to Activity; used to retrieve
@@ -215,15 +219,19 @@ void Client::edit_name()
 	{
 		temp->display();
 
-		char new_name[50];//stores user input for dynamic member data
+		char date[50];//stores user input for dynamic member data
 		
-		//prompt user for Activity name
-		cout << "enter name: ";
-		cin.get(new_name, '\n');
-		cin.ignore(100, '\n');
+		//prompt user for date info until valid input given
+		do
+		{
+			cout << "enter date (ddmmyy): ";
+			cin.get(date, '\n');
+			cin.ignore(100, '\n');
+
+		} while (strlen(date) != 6);
 		
 		//call Activity's set name function with user input as argument
-		temp->set_name(new_name);
+		temp->set_date(date);
 
 		cout << "Activity updated!" << endl
 		     << endl;

@@ -177,12 +177,12 @@ class Data {
 		bool retrieve(char *name, Activity *&retrieved, Node *node);
 
 		//finds Activity matching argument name; deletes object
-		bool remove(Node *&node, char *name);
+		bool remove(Node *node, char *name);
 		
 		//find appropriate node to insert new object into based on
 		//priority lvl; if none found, creates new node and inserts
 		//returns true when done
-		bool insert(Node *&node, const Activity &to_copy);
+		bool insert(Node *node, const Activity &to_copy);
 		
 		//recursively deletes all nodes in DLL
 		void delete_list(Node *&head);

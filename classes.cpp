@@ -8,6 +8,13 @@ classes.cpp
 this file contains the function definitions for the Activity class and all
 subclasses (Dining, Nature, Entertainment)
 
+Activity is not to be used other than when defining pointers; otherwise, 
+only the three subclasses should be utilized when creating new objects.
+
+Activity's functions are all virutal with the exception of three comparison
+functions. 
+
+
 */
 
 #include "classes.h"
@@ -108,10 +115,6 @@ Dining::~Dining()
 //takes a character array and copies data into new array set to member pointer
 void Dining::set_name(char *_name)
 {
-	//if name array exists, delete
-	if (name)
-		delete [] name;
-
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
@@ -129,6 +132,10 @@ void Dining::set_priority(int lvl)
 //takes a character array and copies data into new array set to member pointer
 void Dining::set_date(char *_date)
 {
+	//if date array exists, delete
+	if (date)
+		delete [] date;
+
 	date = new char[strlen(_date)+1];
 	strcpy(date, _date);
 }
@@ -201,10 +208,6 @@ Nature::~Nature()
 //takes a character array and copies data into new array set to member pointer
 void Nature::set_name(char *_name)
 {
-	//if name array exists, delete
-	if (name)
-		delete [] name;
-
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
@@ -223,6 +226,10 @@ void Nature::set_priority(int lvl)
 //takes a character array and copies data into new array set to member pointer
 void Nature::set_date(char *_date)
 {
+	//if date array exists, delete
+	if (date)
+		delete [] date;
+
 	date = new char[strlen(_date)+1];
 	strcpy(date, _date);
 }
@@ -295,10 +302,6 @@ Entertainment::~Entertainment()
 //takes a character array and copies data into new array set to member pointer
 void Entertainment::set_name(char *_name)
 {
-	//if name array exists, delete
-	if (name)
-		delete [] name;
-
 	name = new char[strlen(_name)+1];
 	strcpy(name, _name);
 }
@@ -316,6 +319,10 @@ void Entertainment::set_priority(int lvl)
 //takes a character array and copies data into new array set to member pointer
 void Entertainment::set_date(char *_date)
 {
+	//if date array exists, delete
+	if (date)
+		delete [] date;
+
 	date = new char[strlen(_date)+1];
 	strcpy(date, _date);
 }
