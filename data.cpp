@@ -15,7 +15,8 @@ Node::Node()
 //destructor; deletes dynamic memory
 Node::~Node()
 {
-	if (next) delete next;
+	next = NULL;
+	prev = NULL;
 
 	//if (prev) delete prev;
 
@@ -89,116 +90,6 @@ bool Node::insert(const Activity &to_copy)
 		return insert(to_copy, i);
 	}
 }
-
-/*
-//wrapper; checks if Activity array exists; if not, creates one and adds
-//new Activity. otherwise, checks first Activity's priority lvl; if matches
-//new object's, call recursive insert function to insert new object. if not,
-//checks other nodes in DLL for a matching priority lvl. if none found, creates
-//new node at proper place in DLL and adds new object
-bool Node::insert(const Activity &to_copy)
-{
-	int i = 0;//create index tracker
-	
-	//if array exists
-	if (activities)
-	{
-
-		//check first ptr for array's priority lvl if a match and
-		//array not full, call recursive insert function
-		if (activities[i]->cmp_lvl(to_copy) == 0 && 
-			!activities[MAX_LEN-1])
-		{
-			//call recursive function to insert new object
-			return insert(to_copy, i);
-		}
-		
-		//if new object higher priority than current array,
-		else if (activities[i]->cmp_lvl(to_copy) < 0)
-		{
-			//if curret node is top priority
-			if (!get_prev())
-			{
-				//save current node's next
-				Node *temp = get_next();
-
-				//create new node
-				Node *node = new Node;
-
-				//set next to new node
-				set_next(node);
-
-				//set new node's next to saved next
-				node->set_next(temp);
-				
-				//create ptr to current object
-				Node *current = this;
-
-				//set new nodes prev to current node
-				node->set_prev(current);
-
-				//set saved next node's prev to new node
-				temp->set_prev(node);
-				
-				//set new node's activities to current node's
-				node->activities = activities;
-
-				//create new array for current node
-				activities = new Activity*[MAX_LEN]();
-				
-				//set_null(activities);
-				
-				//call insert function for current node
-				return insert(to_copy, i);
-			}
-			
-			else
-			{
-				//insert new node before current node
-				Node *temp = get_prev();
-				Node *node = new Node;
-				temp->set_next(node);
-				set_prev(node);
-				
-				//call new node's insert function
-				return node->insert(to_copy);
-			}
-		}
-		
-		//if new object priority lower than current array,
-		else	
-		{
-			//check for next node
-			if (get_next())
-			{
-				//if found, call node's insert function
-				return get_next()->insert(to_copy);
-			}
-			
-			//if next not found, create new node, insert into DLL,
-			//and call its insert function
-			else
-			{
-				Node *temp = new Node;
-				set_next(temp);
-				Node *current = this;
-				temp->set_prev(current);
-
-				return get_next()->insert(to_copy);
-			}
-		}
-	}
-
-	else//if array does not exist
-	{
-		activities = new Activity*[MAX_LEN]();
-
-		//set_null(activities);
-		
-		return insert(to_copy, i);
-	}
-}
-*/
 
 
 //recursive insert function; checks all indicies of member array for
@@ -404,7 +295,18 @@ bool Node::remove(char *name)
 	int i = 0;//set index tracker
 	
 	//if array exists, call recursive function 
-	if (activities) return remove(name, i);
+	if (activities) 
+	{
+		bool val = remove(name, i);
+
+		if (!activities[i])
+		{
+			delete [] activities;
+			activities = NULL;
+		}
+
+		return val;
+	}
 	
 	//else exit with fail
 	else return false;
@@ -423,6 +325,7 @@ bool Node::remove(char *name, int i)
 		if (activities[i]->cmp_name(name) == 0)
 		{
 			delete activities[i];
+			activities[i] = NULL;
 			shuffle_left(i);
 
 			return true;
@@ -490,6 +393,48 @@ int Node::cmp_lvl(const Activity &to_check)
 	return -10;
 }
 
+
+
+
+int Node::cmp_name(const Activity &to_check)
+{
+	int i = 0;
+
+	if (activities)
+	{
+		return cmp_name(to_check, i);
+	}
+
+	return -10;
+}
+
+
+
+int Node::cmp_name(const Activity &to_check, int i)
+{
+	if (!activities[i]) return -1;
+
+	if (i == MAX_LEN-1)
+	{
+		return activities[i]->cmp_obj(to_check);
+	}
+
+	if (!activities[i+1])
+	{
+		return activities[i]->cmp_obj(to_check);
+	}
+
+	return cmp_name(to_check, ++i);
+}
+
+
+bool Node::is_empty()
+{
+	if (!activities) return true;
+
+	return false;
+}
+
 		
 
 
@@ -529,9 +474,24 @@ Data::Data()
 //destructor
 Data::~Data()
 {
-	if (activities) delete activities;
+	if (activities) 
+	{
+		delete_list(activities);
+	}
 }
 
+
+
+void Data::delete_list(Node *&head)
+{
+	if (!head) return;
+
+	Node *temp = head->get_next();
+
+	delete head;
+
+	delete_list(temp);
+}
 
 /*
 //copies argument object and inserts new object
@@ -562,8 +522,7 @@ bool Data::insert(const Activity &to_copy)
 }
 
 
-
-bool Data::insert(Node *node, const Activity &to_copy)
+bool Data::insert(Node *&node, const Activity &to_copy)
 {
 	int p_lvl = node->cmp_lvl(to_copy);
 
@@ -571,26 +530,48 @@ bool Data::insert(Node *node, const Activity &to_copy)
 	{
 		if (!node->insert(to_copy))
 		{
-			//create new node
-			Node *temp = new Node;
-
-			//set new node's next to current node's next
-			temp->set_next(node->get_next());
-
-			//set current node's next to temp
-			node->set_next(temp);
-
-			//set temp's prev to current node
-			temp->set_prev(node);
-
-			//set temp's next's prev to temp
-			if (temp->get_next())
+			//if new object's name should be ordered after 
+			//current node's array's last item
+			if (node->cmp_name(to_copy) < 0)
 			{
-				temp->get_next()->set_prev(temp);
+				//create new node
+				Node *temp = new Node;
+
+				//set new node's next to current node's next
+				temp->set_next(node->get_next());
+
+				//set current node's next to temp
+				node->set_next(temp);
+
+				//set temp's prev to current node
+				temp->set_prev(node);
+
+				//set temp's next's prev to temp
+				if (temp->get_next())
+				{
+					temp->get_next()->set_prev(temp);
+				}
+				
+				return temp->insert(to_copy);
+			}
+
+			else
+			{
+				//create new node
+				Node *temp = new Node;
+				
+				//set new node's next to current node
+				temp->set_next(node);
+				
+				//set current node's prev to new node
+				node->set_prev(temp);
+				
+				//set activities ptr to new node
+				activities = node->get_prev();
+				
+				return activities->insert(to_copy);
 			}
 			
-
-			return temp->insert(to_copy);
 		}
 
 		return true;
@@ -623,13 +604,17 @@ bool Data::insert(Node *node, const Activity &to_copy)
 		//if curret node is top priority
 		if (!node->get_prev())
 		{
+			//create new node
 			Node *temp = new Node;
-
+			
+			//set new node's next to current node
 			temp->set_next(node);
-
+			
+			//set current node's prev to new node
 			node->set_prev(temp);
-
-			activities = temp;
+			
+			//set activities ptr to new node
+			activities = node->get_prev();
 
 			return activities->insert(to_copy);
 		}
@@ -638,9 +623,17 @@ bool Data::insert(Node *node, const Activity &to_copy)
 		{
 			//insert new node before current node
 			Node *temp = new Node;
+
+			//set new node next to current node
 			temp->set_next(node);
+
+			//set new node prev to current node's prev
 			temp->set_prev(node->get_prev());
+
+			//set current node's prev's next to new node
 			node->get_prev()->set_next(temp);
+
+			//set current node's prev to new node
 			node->set_prev(temp);
 
 			return temp->insert(to_copy);
@@ -730,9 +723,59 @@ bool Data::remove(Node *&node, char *name)
 {
 	if (!node) return false;
 
-	if (node->remove(name)) return true;
+	if (node->remove(name)) 
+	{
+		if (node->is_empty())
+		{
+			if (node == activities)
+			{
 
-	return remove(node->get_next(), name);
+				if (activities->get_next())
+				{
+					Node * temp = node->get_prev();
+
+					activities = node->get_next();
+
+					delete activities->get_prev();
+
+					activities->set_prev(temp);
+				}
+
+				else
+				{
+					delete activities;
+
+					activities = NULL;
+				}
+			}
+
+			else
+			{
+				Node *temp = node;
+
+				Node *prev = &(*temp->get_prev());
+
+				Node *next = &(*temp->get_next());
+
+				prev->set_next(next);
+
+				if (temp->get_next())
+				{
+					next->set_prev(prev);
+				}
+				
+				delete node;
+
+				node = NULL;
+			}
+		}
+
+		return true;
+	}
+
+	Node *temp = node->get_next();
+
+	return remove(temp, name);
 }
 
 

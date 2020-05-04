@@ -46,6 +46,12 @@ class Node {
 
 		int cmp_lvl(const Activity &to_check);
 
+
+		int cmp_name(const Activity &to_check);
+
+
+		bool is_empty();
+
 	private:
 		//sets the max size for member arrays
 		const int MAX_LEN = 1;
@@ -82,6 +88,8 @@ class Node {
 		//deletes any object array points to
 		void delete_array(int i);
 
+		int cmp_name(const Activity &to_check, int i);
+
 		//points to next node in DLL
 		Node *next;
 
@@ -107,7 +115,6 @@ class Data {
 		//into data structure
 		bool insert(const Activity &to_copy);
 
-		bool insert(Node *node, const Activity &to_copy);
 
 		//wrapper; calls recusrive display function. return true if
 		//object found, false if not
@@ -134,6 +141,10 @@ class Data {
 
 		//finds Activity matching argument name; deletes object
 		bool remove(Node *&node, char *name);
+
+		bool insert(Node *&node, const Activity &to_copy);
+
+		void delete_list(Node *&head);
 
 		//pointer to DLL of nodes; each node points to
 		//array of Activity object pointers

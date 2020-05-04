@@ -153,6 +153,11 @@ void Client::remove()
 	if (!activities->remove(name))
 		cout << "activity not found" << endl
 		     << endl;
+	else
+	{
+		cout << name << " removed" << endl
+		     << endl;
+	}
 }
 
 
@@ -199,15 +204,15 @@ void Client::edit_name()
 	{
 		temp->display();
 
-		char name[50];//stores user input for dynamic member data
+		char new_name[50];//stores user input for dynamic member data
 		
 		//prompt user for Activity name
 		cout << "enter name: ";
-		cin.get(name, '\n');
+		cin.get(new_name, '\n');
 		cin.ignore(100, '\n');
 		
 		//call Activity's set name function with user input as argument
-		temp->set_name(name);
+		temp->set_name(new_name);
 
 		cout << "Activity updated!" << endl
 		     << endl;
