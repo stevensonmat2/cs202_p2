@@ -8,8 +8,15 @@ classes.h
 this file contains the class definitions for the following:
 
 abstract base class: Activity
-subclasses of Node: Dining, Nature, and Entertainment
+subclasses: Dining, Nature, and Entertainment
 
+Activity is an abstract base class; client programs should only use Activity
+to create flexible pointers; otherwise, client programs should work only with
+the three subclasses
+
+each subclass represents a category of activity for a person to schedule. the
+base class provides a template for a self-similar interface for all derived
+classes
 
 */
 
@@ -52,13 +59,13 @@ class Activity {
 		//outputs all member data
 		virtual void display() = 0;
 		
-		//compares argument to object value; returns true if match
+		//compares argument's name to object's; returns result
 		int cmp_obj(const Activity &compare);
 
-		//compares argument's priority to object's, return true if match
+		//compares argument's priority to object's; returns result
 		int cmp_lvl(const Activity &compare);
 	
-		//compares argument to object value; returns true if match
+		//compares argument to object value; returns comparison result
 		int cmp_name(char *name);
 
 	protected:
@@ -136,9 +143,6 @@ class Nature: public Activity {
 
 		//outputs all member data
 		void display();
-		
-		//compares argument to object value; returns true if match
-		int cmp_name(char *name);
 };
 
 
@@ -171,7 +175,4 @@ class Entertainment: public Activity {
 
 		//outputs all member data
 		void display();
-		
-		//compares argument to object value; returns true if match
-		int cmp_name(char *name);
 };

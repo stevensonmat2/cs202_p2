@@ -1,3 +1,19 @@
+/*
+Matt Stevenson
+CS202 Program #2
+4/22/2020
+
+client.h
+
+this file contains the class definition for a client program class. this class
+utilizes the data structure developed in data.h to create a program for working
+with a collection of scheduled activities
+
+the Client class offers functionality to add, display, remove, and edit new
+Activity objects
+
+*/
+
 #include "data.h"
 
 

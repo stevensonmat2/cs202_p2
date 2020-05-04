@@ -1,3 +1,14 @@
+/*
+Matt Stevenson
+CS202 Program #2
+4/22/2020
+
+client.cpp
+
+this file contains all function definitions for the Client class
+
+*/
+
 #include "client.h"
 
 

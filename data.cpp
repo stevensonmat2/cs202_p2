@@ -1,3 +1,23 @@
+/*
+Matt Stevenson
+CS202 Program #2
+4/22/2020
+
+data.cpp
+
+this file contains the function definitions for the Node and Data classes. 
+
+the Data class managers a DLL of Nodes and is responsible for adding/deleting
+nodes, retrieving objects from nodes, and deciding which node to insert a new
+object into.
+
+the Node class manages an array of ptrs to base class objects (Activity). each
+node is responsible for adding/deleting objects to/from its array, as well as 
+retrieving objects.
+
+*/
+
+
 #include "data.h"
 
 
@@ -17,15 +37,18 @@ Node::~Node()
 {
 	next = NULL;
 	prev = NULL;
-
-	//if (prev) delete prev;
-
+	
+	//if Activity array exists
 	if (activities) 
 	{
-		int i = 0;
+		//int i = 0;//index tracker
+		
+		//recursively delete objects in array
+		//delete_array(i);
 
-		delete_array(i);
+		//delete array
 		delete [] activities;
+
 		activities = NULL;
 	}
 }
@@ -255,14 +278,17 @@ bool Node::display(char *name, int i)
 
 
 
-//finds Activity matching argument name; returns object
-//via argument pointer
+//wrapper; if node has Activity array, calls recursive function to find object
+//matching name argument and return it via argument pointer; returns false if 
+//no array found, otherwise return value of recursive function
 bool Node::retrieve(char *name, Activity *&retrieved)
 {
-	int i = 0;
-
+	int i = 0;//index tracker
+	
+	//if Activity array exists
 	if (activities)
 	{
+		//call recursive function
 		return retrieve(name, retrieved, i);
 	}
 	
@@ -271,20 +297,25 @@ bool Node::retrieve(char *name, Activity *&retrieved)
 
 
 
+//finds Activity matching argument name; returns object via argument pointer;
+//return true if object found, false if not
 bool Node::retrieve(char *name, Activity *&retrieved, int i)
 {
+	//if entire array checked with no match
 	if (i == MAX_LEN) return false;
-
+	
+	//if current index object matches name
 	if (activities[i]->cmp_name(name) == 0)
 	{
+		//set argument ptr to matching object
 		retrieved = activities[i];
 
 		return true;
 	}
-
+	
+	//traverse array
 	return retrieve(name, retrieved, ++i);
 }
-
 
 
 
@@ -297,14 +328,17 @@ bool Node::remove(char *name)
 	//if array exists, call recursive function 
 	if (activities) 
 	{
+		//call recursive function; save return value
 		bool val = remove(name, i);
-
+		
+		//check if array empty after removal; if so, delete array
 		if (!activities[i])
 		{
 			delete [] activities;
 			activities = NULL;
 		}
-
+		
+		//return value of recursive function
 		return val;
 	}
 	
@@ -318,19 +352,26 @@ bool Node::remove(char *name)
 //removes object and calls function to shift objects in array
 bool Node::remove(char *name, int i)
 {
+	//if entire array checked with no match
 	if (i == MAX_LEN) return false;
 	
+	//if object at current index
 	if (activities[i])
 	{
+		//if current object matches name argument
 		if (activities[i]->cmp_name(name) == 0)
 		{
+			//delete object
 			delete activities[i];
 			activities[i] = NULL;
+
+			//shift objects in array to fill gap
 			shuffle_left(i);
 
 			return true;
 		}
 		
+		//traverse array
 		else return remove(name, ++i);
 	}
 
@@ -339,13 +380,16 @@ bool Node::remove(char *name, int i)
 
 
 
-//calls display function for all object of argument priority
+//wrapper; calls recursive function to display all objects in array; returns
+//false if no array exists, true otherwise
 bool Node::display_all()
 {
 	int i = 0;//set index tracker
-
+	
+	//if array exists
 	if (activities)
 	{
+		//call recursive display all function
 		display_all(i);
 
 		return true;
@@ -356,19 +400,21 @@ bool Node::display_all()
 
 
 
-//calls display function for all object of argument priority
+//recursively traverses Activity array and calls display function on all objects
 void Node::display_all(int i)
 {
 	//if end of array or empty index found, check next node's array
-	//then exit
+	//for priority lvl match
 	if (i == MAX_LEN || !activities[i])
 	{
+		//if no next node, exit
 		if (!get_next()) return;
-
+		
+		//if next node's array matches current priority lvl
 		if (get_next()->cmp_lvl(*activities[0]) == 0)
 		{
+			//call ndext node's display all
 			get_next()->display_all();
-			
 		}
 
 		return;
@@ -383,25 +429,39 @@ void Node::display_all(int i)
 
 
 
+
+//checks argument objects priorty lvl against first object in node's array;
+//returns value of comparison; 0 = match, > 0 argument is lower priority
 int Node::cmp_lvl(const Activity &to_check)
 {
+	//if array exists
 	if (activities)
 	{
+		//check argument lvl against first object in arrays';
+		//return the value of comparison
 		return activities[0]->cmp_lvl(to_check);
 	}
+	
+	//impossible condition to reach returns -1
+	return -1;
 
-	return -10;
+	//check argument lvl against first object in arrays';
+	//return the value of comparison
+	//return activities[0]->cmp_lvl(to_check);
 }
 
 
 
-
+//wrapper; calls recursive function to compare name of argument to name of
+//first of last object in Activity array; return integer result of comparison;
+//0 = same, > 0 if array object name comes before arguments, < 0 otherwise 
 int Node::cmp_name(const Activity &to_check)
 {
-	int i = 0;
-
+	int i = 0;//index tracker
+	//if array exists
 	if (activities)
 	{
+		//call recursive function
 		return cmp_name(to_check, i);
 	}
 
@@ -410,24 +470,33 @@ int Node::cmp_name(const Activity &to_check)
 
 
 
+//compares last object in arrays' name to argument's name and returns result
+//of comparison
 int Node::cmp_name(const Activity &to_check, int i)
 {
-	if (!activities[i]) return -1;
-
+	//if (!activities[i]) return -1;
+	
+	//if last index in array contains an object
 	if (i == MAX_LEN-1)
 	{
+		//compare argument object to index object and return result
 		return activities[i]->cmp_obj(to_check);
 	}
-
+	
+	//if current object last in array
 	if (!activities[i+1])
 	{
+		//compare argument object to index object and return result
 		return activities[i]->cmp_obj(to_check);
 	}
-
+	
+	//traverse until last object in array found
 	return cmp_name(to_check, ++i);
 }
 
 
+
+//checks if node's array is empty; return if so, false otherwise
 bool Node::is_empty()
 {
 	if (!activities) return true;
@@ -436,9 +505,7 @@ bool Node::is_empty()
 }
 
 		
-
-
-
+//ERASE ERASE ERASE
 //recursive function to delete all Activity objects in member array
 void Node::delete_array(int i)
 {
@@ -482,14 +549,19 @@ Data::~Data()
 
 
 
+//recursive function to delete all nodes in DLL
 void Data::delete_list(Node *&head)
 {
+	//if end of list, exit
 	if (!head) return;
-
+	
+	//save current node's next object
 	Node *temp = head->get_next();
-
+	
+	//delete currnt node
 	delete head;
-
+	
+	//traverse to next node
 	delete_list(temp);
 }
 
@@ -508,26 +580,43 @@ bool Data::insert(const Activity &to_copy)
 }
 */
 
-//copies argument object and inserts new object
-//into data structure
+
+
+//wrapper; if no nodes exist, create one; call recursive function to insert
+//new object into a node's array; returns value of recursive function
 bool Data::insert(const Activity &to_copy)
 {
+	//if no node exists
 	if (!activities)
 	{
+		//create one at activities ptr
 		activities = new Node;
+
+		//call recursive insert function
 		return activities->insert(to_copy);
 	}
 
+	//call recursive insert function
 	return insert(activities, to_copy);
 }
 
 
+
+//checks priority of new object and then compares against each node's in DLL;
+//if a match is found, attempts to insert new object into node's array. 
+//if array is full, checks node array's last object's name against new object,
+//then creates a new node either ahead or after current node and inserts new
+//object there.
+//otherwise, traverses DLL for appropriate place in insert new object
 bool Data::insert(Node *&node, const Activity &to_copy)
 {
+	//compare priority lvl of current object to current array
 	int p_lvl = node->cmp_lvl(to_copy);
-
+	
+	//if matching
 	if (p_lvl == 0)
 	{
+		//if array is full
 		if (!node->insert(to_copy))
 		{
 			//if new object's name should be ordered after 
@@ -545,16 +634,20 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 
 				//set temp's prev to current node
 				temp->set_prev(node);
-
-				//set temp's next's prev to temp
+				
+				//if temp's next not null
 				if (temp->get_next())
 				{
+					//set temp's next's prev to temp
 					temp->get_next()->set_prev(temp);
 				}
 				
+				//call wrapper insert function to create new
+				//array and insert new object
 				return temp->insert(to_copy);
 			}
-
+			
+			//if new object should go before current node
 			else
 			{
 				//create new node
@@ -569,11 +662,14 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 				//set activities ptr to new node
 				activities = node->get_prev();
 				
+				//call wrapper insert function to create new
+				//array and insert new object
 				return activities->insert(to_copy);
 			}
 			
 		}
-
+		
+		//if insertion successful, return true
 		return true;
 	}
 	
@@ -595,10 +691,13 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 			node->set_next(temp);
 			temp->set_prev(node);
 
+			//call wrapper insert function to create new
+			//array and insert new object
 			return temp->insert(to_copy);
 		}
 	}
-
+	
+	//if new object higher priority than current node
 	else
 	{
 		//if curret node is top priority
@@ -616,6 +715,8 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 			//set activities ptr to new node
 			activities = node->get_prev();
 
+			//call wrapper insert function to create new
+			//array and insert new object
 			return activities->insert(to_copy);
 		}
 		
@@ -636,6 +737,8 @@ bool Data::insert(Node *&node, const Activity &to_copy)
 			//set current node's prev to new node
 			node->set_prev(temp);
 
+			//call wrapper insert function to create new
+			//array and insert new object
 			return temp->insert(to_copy);
 		}
 	}
@@ -672,12 +775,14 @@ bool Data::display(char *name, Node *node)
 
 
 
-//finds Activity matching argument name; returns object
-//via argument pointer
+//wrapper; if activites exist, call recursive function to find and return
+//object matching argument name. returns value of recursive function
 bool Data::retrieve(char *name, Activity *&retrieved)
 {
+	//if activities exist
 	if (activities)
 	{
+		//call recursive function
 		return retrieve(name, retrieved, activities);
 	}
 
@@ -694,7 +799,7 @@ bool Data::retrieve(char *name, Activity *&retrieved, Node *node)
 	if (!node) return false;
 	
 	//check current node
-	if (activities->retrieve(name, retrieved))
+	if (node->retrieve(name, retrieved))
 	{
 		return true;//return true if retrieval successful
 	}
@@ -721,46 +826,65 @@ bool Data::remove(char *name)
 //matching argument name; if found, call node remove function
 bool Data::remove(Node *&node, char *name)
 {
+	//if DLL empty of or end of list reached with no match
 	if (!node) return false;
-
+	
+	//if object successfully removed
 	if (node->remove(name)) 
 	{
+		//check if node array is empty
 		if (node->is_empty())
 		{
+			//if so, check if node head of DLL
 			if (node == activities)
 			{
-
-				if (activities->get_next())
+				//if so, check for next node
+				if (node->get_next())
 				{
+					//if found, save a null ptr
 					Node * temp = node->get_prev();
-
-					activities = node->get_next();
-
+					
+					//set activities ptr to next node
+					activities = &(*node->get_next());
+					
+					//delete old head of list
 					delete activities->get_prev();
-
+					
+					//set current head's prev to null
 					activities->set_prev(temp);
 				}
 
-				else
+				else//if no next
 				{
+					//delete curret node
 					delete activities;
-
+					
+					//set activities ptr to null
 					activities = NULL;
 				}
 			}
-
+			
+			//if current node not head of DLL, delete current node
+			//and reconnect list
 			else
 			{
+				//save current node to temp
 				Node *temp = node;
-
+				
+				//save current node's prev
 				Node *prev = &(*temp->get_prev());
-
+				
+				//save current node's next
 				Node *next = &(*temp->get_next());
-
+				
+				//set prev's next to next ptr
 				prev->set_next(next);
-
-				if (temp->get_next())
+				
+				//if next ptr not null
+				//if (temp->get_next())
+				if (next)
 				{
+					//set next's prev to prev
 					next->set_prev(prev);
 				}
 				
@@ -769,12 +893,15 @@ bool Data::remove(Node *&node, char *name)
 				node = NULL;
 			}
 		}
-
+		
+		//if node not empty, exit with sucess
 		return true;
 	}
-
+	
+	//get address of next object
 	Node *temp = node->get_next();
-
+	
+	//traverse to next node to look for match
 	return remove(temp, name);
 }
 
@@ -783,8 +910,10 @@ bool Data::remove(Node *&node, char *name)
 //calls display function for all object of argument priority
 bool Data::display_all_p()
 {
+	//if activities exist
 	if (activities)
 	{
+		//call node's display all function
 		return activities->display_all();
 	}
 

@@ -1,4 +1,17 @@
+/*
+Matt Stevenson
+CS202 Program #2
+4/22/2020
+
+classes.cpp
+
+this file contains the function definitions for the Activity class and all
+subclasses (Dining, Nature, Entertainment)
+
+*/
+
 #include "classes.h"
+
 
 
 //default constructor; sets member data to default values
